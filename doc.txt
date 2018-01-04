@@ -1,0 +1,14 @@
+2-1文件夹作为发送端，2-2文件夹作为接收端
+
+发送端开启ion：ionstart -I ltp2-1.rc
+接收端开启ion：ionstart -I ltp2-2.rc
+
+发送端另起终端：bpsendfile ipn:1.1 ipn:4.1 a
+##1和4只是两个结点的序号，只是设成1和4而已，a就是文件名，例如:sc.png
+接收端另起终端：bprecvfile ipn:4.1 (N)
+## N是一个数值，表示接受到N个文件后bprecvfile命令就会结束，否则需Ctrl+C结束
+
+可能的结果：可能会出现传一次文件，接收端会收到多个相同的文件。
+            传送的PDF可能会打不开
+
+嵌入式系统上可能要改小 config 文件中的 wmSize

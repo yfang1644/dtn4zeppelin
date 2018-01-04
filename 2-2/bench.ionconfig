@@ -1,0 +1,5 @@
+wmSize 500000000
+wmAddress 0
+configFlags 1
+heapWords 200000000
+pathName /tmp
