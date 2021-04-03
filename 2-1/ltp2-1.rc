@@ -17,8 +17,8 @@ e 1
 
 ## begin ltpadmin
 1 50 24000000
-a span 4 50 240000 50 240000 1400 240000 1 'udplso 10.0.1.104:1113'
-s 'udplsi 10.0.1.101:1113'
+a span 4 50 240000 50 240000 1400 240000 1 'udplso 192.168.2.104:8113'
+s 'udplsi 192.168.2.113:8113'
 m screening n
 w 1
 ## end ltpadmin

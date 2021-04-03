@@ -12,10 +12,7 @@
 static BpSAP                sap;
 static Sdr                  sdr;
 static pthread_mutex_t      sdrmutex = PTHREAD_MUTEX_INITIALIZER;
-static char                 *destEid = NULL;
-static char                 *ownEid = NULL;
 static BpCustodySwitch      custodySwitch = NoCustodyRequested;
-static int                  running = 1;
 
 const char usage[] =
 "Usage: bpchat <source EID> <dest EID> [ct]\n\n"
@@ -23,9 +20,9 @@ const char usage[] =
 "Receives bundles and writes them to stdout.\n"
 "If \"ct\" is specified, sent bundles have the custody transfer flag set\n";
 
-static pthread_t    sendLinesThread;
 static void *       sendLines(void *args)
 {
+    char *destEid = (char *)args;
     Object          bundleZco, bundlePayload;
     Object          newBundle;   /* We never use but bp_send requires it. */
     int             lineLength = 0;
@@ -81,7 +78,6 @@ static void *       sendLines(void *args)
     return NULL;
 }
 
-static pthread_t    recvBundlesThread;
 static void *       recvBundles(void *args)
 {
     BpDelivery      dlv;
@@ -137,9 +133,11 @@ static void *       recvBundles(void *args)
 
 int main(int argc, char **argv)
 {
-    ownEid      = (argc > 1 ? argv[1] : NULL);
-    destEid     = (argc > 2 ? argv[2] : NULL);
-    char    *ctArg = (argc > 3 ? argv[3] : NULL);
+    pthread_t    sendLinesThread;
+    pthread_t    recvBundlesThread;
+    char    *ownEid  = (argc > 1 ? argv[1] : NULL);
+    char    *destEid = (argc > 2 ? argv[2] : NULL);
+    char      *ctArg = (argc > 3 ? argv[3] : NULL);
 
     if(argc < 2 || (argv[1][0] == '-')) {
         fprintf(stderr, usage);
@@ -163,13 +161,13 @@ int main(int argc, char **argv)
     sdr = bp_get_sdr();
 
     /* Start receiver thread and sender thread. */
-    if(pthread_begin(&sendLinesThread, NULL, sendLines, NULL) < 0) {
+    if(pthread_create(&sendLinesThread, NULL, sendLines, destEid) < 0) {
         printf("Can't make sendLines thread.\n");
         bp_interrupt(sap);
         exit(1);
     }
 
-    if(pthread_begin(&recvBundlesThread, NULL, recvBundles, NULL) < 0) {
+    if(pthread_create(&recvBundlesThread, NULL, recvBundles, NULL) < 0) {
         printf("Can't make recvBundles thread.\n");
         bp_interrupt(sap);
         exit(1);

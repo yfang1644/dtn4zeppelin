@@ -12,3 +12,5 @@
             传送的PDF可能会打不开
 
 嵌入式系统上可能要改小 config 文件中的 wmSize
+
+程序会不断打印 defgshg。。。 到stderr， 调试用？
